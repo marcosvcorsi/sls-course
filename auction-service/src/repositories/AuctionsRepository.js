@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 
-const TableName = 'AuctionsTable';
+const TableName = process.env.AUCTIONS_TABLE_NAME;
 
 class AuctionsRepository {
   constructor() {
