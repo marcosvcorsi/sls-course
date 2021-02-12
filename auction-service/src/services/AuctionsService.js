@@ -25,6 +25,10 @@ class AuctionsService {
 
     return auction;
   }
+
+  async findAll() {
+    return this.auctionsRepository.findAll();
+  }
 }
 
 export default AuctionsService;

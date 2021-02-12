@@ -18,6 +18,14 @@ class AuctionsRepository {
       }
     }).promise();
   }
+
+  async findAll() {
+    const { Items } = await this.dynamoDb.scan({
+      TableName,
+    }).promise();
+
+    return Items;
+  }
 }
 
 export default AuctionsRepository;
