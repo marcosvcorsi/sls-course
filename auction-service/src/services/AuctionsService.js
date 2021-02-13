@@ -29,6 +29,10 @@ class AuctionsService {
   async findAll() {
     return this.auctionsRepository.findAll();
   }
+
+  async findById(id) {
+    return this.auctionsRepository.findById(id);
+  }
 }
 
 export default AuctionsService;

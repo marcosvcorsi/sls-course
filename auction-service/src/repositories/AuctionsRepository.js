@@ -26,6 +26,15 @@ class AuctionsRepository {
 
     return Items;
   }
+
+  async findById(id) {
+    const { Item } =  await this.dynamoDb.get({
+      TableName,
+      Key: { id }
+    }).promise();
+
+    return Item;
+  }
 }
 
 export default AuctionsRepository;

@@ -15,6 +15,7 @@ provider:
     AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
   iamRoleStatements:
     - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM}
+    
 resources:
   Resources:
     AuctionsTable: ${file(resources/AuctionsTable.yml):AuctionsTable}
@@ -32,6 +33,12 @@ functions:
       - http:
           method: GET
           path: /auctions
+  getAuction:
+    handler: src/handlers/getAuction.handler
+    events:
+      - http:
+          method: GET
+          path: /auctions/{id}
 
 custom:
   AuctionsTable:
