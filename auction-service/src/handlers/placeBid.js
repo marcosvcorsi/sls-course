@@ -6,17 +6,35 @@ import { useMiddlewares } from "../helpers/middlewares";
 const auctionsService = createAuctionService();
 
 async function placeBid(event, context) {
+  const { id } = event.pathParameters;
+  const { amount } = event.body;
+
+  let auction;
+
   try {
-    const { id } = event.pathParameters;
-    const { amount } = event.body;
+    auction = await auctionsService.findById(id);
+  } catch(error) {
+    throw new createError.InternalServerError(error);
+  }
 
-    const auction = await auctionsService.patch(id, { amount });
+  if(!auction) {
+    throw new createError.NotFound('Auction not found.');
+  }
+  
+  if(amount <= auction.highestBid.amount) {
+    throw new createError.Forbidden(`Your bid must be higher than ${auction.highestBid.amount}`);
+  }
 
-    return ok(auction);
+  let updatedAuction;
+
+  try {    
+    updatedAuction = await auctionsService.patch(id, { amount });
   } catch(error) {
     console.error(error);
     throw new createError.InternalServerError(error);
   }
+
+  return ok(auction);
 }
 
 export const handler = useMiddlewares(placeBid)
