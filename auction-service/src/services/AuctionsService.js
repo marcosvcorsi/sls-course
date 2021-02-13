@@ -18,7 +18,10 @@ class AuctionsService {
       id,
       title,
       status,
-      createdAt
+      createdAt,
+      highestBid: {
+        amount: 0,
+      }
     };
 
     await this.auctionsRepository.create(auction);
@@ -32,6 +35,10 @@ class AuctionsService {
 
   async findById(id) {
     return this.auctionsRepository.findById(id);
+  }
+
+  async patch(id, { amount }) {
+    return this.auctionsRepository.patch(id, { amount });
   }
 }
 
