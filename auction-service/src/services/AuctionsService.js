@@ -12,13 +12,21 @@ class AuctionsService {
   async create({ title }) {
     const id = uuid();
     const status = AUCTION_STATUS.OPEN;
-    const createdAt = new Date().toISOString();
+    
+    const now = new Date();
+    const createdAt = now.toISOString();
+
+    const endDate = new Date();
+    endDate.setHours(now.getHours() + 1);
+
+    const endingAt = endDate.toISOString();
 
     const auction = {
       id,
       title,
       status,
       createdAt,
+      endingAt,
       highestBid: {
         amount: 0,
       }
