@@ -7,13 +7,14 @@ class AuctionsRepository {
     this.dynamoDb = new AWS.DynamoDB.DocumentClient();
   }
 
-  async create({ id, title, status, createdAt, highestBid }) {
+  async create({ id, title, status, createdAt, endingAt, highestBid }) {
     return this.dynamoDb.put({
       TableName,
       Item: {
         id,
         title,
         createdAt,
+        endingAt,
         status,
         highestBid
       }
@@ -49,6 +50,23 @@ class AuctionsRepository {
     }).promise();
 
     return Attributes;
+  }
+
+  async findByStatusAndEndDate(status, endDate) {
+    const { Items } = await this.dynamoDb.query({
+      TableName,
+      IndexName: 'statusAndEndDate',
+      KeyConditionExpression: '#status = :status AND endingAt <= :now',
+      ExpressionAttributeValues: {
+        ':status': status,
+        ':now': endDate.toISOString()
+      },
+      ExpressionAttributeNames: {
+        '#status': 'status',
+      }
+    }).promise()
+
+    return Items;
   }
 }
 

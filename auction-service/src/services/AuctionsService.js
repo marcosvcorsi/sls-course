@@ -48,6 +48,14 @@ class AuctionsService {
   async patch(id, { amount }) {
     return this.auctionsRepository.patch(id, { amount });
   }
+
+  async findAuctionsToClose() {
+    const now = new Date();
+
+    console.log(now.toISOString());
+
+    return this.auctionsRepository.findByStatusAndEndDate(AUCTION_STATUS.OPEN, now);
+  }
 }
 
 export default AuctionsService;
