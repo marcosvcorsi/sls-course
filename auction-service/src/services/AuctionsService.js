@@ -63,11 +63,11 @@ class AuctionsService {
     }
 
     if(email === auction.seller) {
-      throw new InvalidOperationError('You cant bid in your own auction');
+      throw new InvalidOperationError('You cant bid on your own auctions');
     }
 
     if(email === auction.highestBid.bidder) {
-      throw new InvalidOperationError('You already have the highest bid');
+      throw new InvalidOperationError('You are already the highest bidder');
     }
 
     if(amount <= auction.highestBid.amount) {
