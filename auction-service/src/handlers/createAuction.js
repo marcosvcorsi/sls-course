@@ -25,9 +25,10 @@ const inputSchema = {
 
 async function createAuction(event, context) {
   const { title } = event.body;
+  const { email } = event.requestContext.authorizer;
 
   try {
-    const auction = await auctionsService.create({ title });
+    const auction = await auctionsService.create({ title, seller: email });
 
     return created(auction);
   } catch(error) {

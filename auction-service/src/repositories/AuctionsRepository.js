@@ -7,7 +7,7 @@ class AuctionsRepository {
     this.dynamoDb = new AWS.DynamoDB.DocumentClient();
   }
 
-  async create({ id, title, status, createdAt, endingAt, highestBid }) {
+  async create({ id, title, status, createdAt, endingAt, highestBid, seller }) {
     return this.dynamoDb.put({
       TableName,
       Item: {
@@ -16,7 +16,8 @@ class AuctionsRepository {
         createdAt,
         endingAt,
         status,
-        highestBid
+        highestBid,
+        seller
       }
     }).promise();
   }
@@ -38,13 +39,14 @@ class AuctionsRepository {
     return Item;
   }
 
-  async patch(id, { amount }) {
+  async patch(id, { amount, email }) {
     const { Attributes } = await this.dynamoDb.update({
       TableName,
       Key: { id },
-      UpdateExpression: 'set highestBid.amount = :amount',
+      UpdateExpression: 'set highestBid.amount = :amount, highestBid.bidder = :bidder',
       ExpressionAttributeValues: {
-        ':amount': amount
+        ':amount': amount,
+        ':bidder': email
       },
       ReturnValues: 'ALL_NEW',
     }).promise();

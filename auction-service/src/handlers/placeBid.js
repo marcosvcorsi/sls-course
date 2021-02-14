@@ -28,9 +28,11 @@ const inputSchema = {
 async function placeBid(event, context) {
   const { id } = event.pathParameters;
   const { amount } = event.body;
+  const { email } = event.requestContext.authorizer;
+
 
   try {
-    const auction = await auctionsService.patch(id, { amount });
+    const auction = await auctionsService.patch(id, { amount, email });
 
     return ok(auction);
   } catch(error) {

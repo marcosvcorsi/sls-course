@@ -12,7 +12,7 @@ class AuctionsService {
     this.auctionsRepository = auctionsRepository;
   }
 
-  async create({ title }) {
+  async create({ title, seller }) {
     const id = uuid();
     const status = AUCTION_STATUS.OPEN;
     
@@ -32,7 +32,8 @@ class AuctionsService {
       endingAt,
       highestBid: {
         amount: 0,
-      }
+      },
+      seller,
     };
 
     await this.auctionsRepository.create(auction);
@@ -54,18 +55,26 @@ class AuctionsService {
     return this.auctionsRepository.findById(id);
   }
 
-  async patch(id, { amount }) {
+  async patch(id, { amount, email }) {
     const auction = await this.findById(id);
 
     if(auction.status !== AUCTION_STATUS.OPEN) {
       throw new InvalidOperationError('Auction is not open');
     }
 
+    if(email === auction.seller) {
+      throw new InvalidOperationError('You cant bid in your own auction');
+    }
+
+    if(email === auction.highestBid.bidder) {
+      throw new InvalidOperationError('You already have the highest bid');
+    }
+
     if(amount <= auction.highestBid.amount) {
       throw new InvalidOperationError(`Your bid must be higher than ${auction.highestBid.amount}`);
     }
 
-    return this.auctionsRepository.patch(id, { amount });
+    return this.auctionsRepository.patch(id, { amount, email });
   }
 
   async findByStatus(status) {
