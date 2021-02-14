@@ -2,6 +2,8 @@ import { createAuctionService } from "../factories/auctions";
 import createError from 'http-errors';
 import { ok } from "../helpers/http";
 import { useMiddlewares } from "../helpers/middlewares";
+import NotFoundError from "../errors/NotFoundError";
+import InvalidOperationError from "../errors/InvalidOperationError";
 
 const auctionsService = createAuctionService();
 
@@ -9,32 +11,20 @@ async function placeBid(event, context) {
   const { id } = event.pathParameters;
   const { amount } = event.body;
 
-  let auction;
-
   try {
-    auction = await auctionsService.findById(id);
+    const auction = await auctionsService.patch(id, { amount });
+
+    return ok(auction);
   } catch(error) {
-    throw new createError.InternalServerError(error);
+    if(error instanceof NotFoundError) {
+      throw new createError.NotFound(error.message);
+    } else if(error instanceof InvalidOperationError) {
+      throw new createError.Forbidden(error.message);
+    } else {
+      console.error(error);
+      throw new createError.InternalServerError(error);
+    }
   }
-
-  if(!auction) {
-    throw new createError.NotFound('Auction not found.');
-  }
-  
-  if(amount <= auction.highestBid.amount) {
-    throw new createError.Forbidden(`Your bid must be higher than ${auction.highestBid.amount}`);
-  }
-
-  let updatedAuction;
-
-  try {    
-    updatedAuction = await auctionsService.patch(id, { amount });
-  } catch(error) {
-    console.error(error);
-    throw new createError.InternalServerError(error);
-  }
-
-  return ok(auction);
 }
 
 export const handler = useMiddlewares(placeBid)

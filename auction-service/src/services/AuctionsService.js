@@ -1,4 +1,6 @@
 import { v4 as uuid } from 'uuid';
+import InvalidOperationError from '../errors/InvalidOperationError';
+import NotFoundError from '../errors/NotFoundError';
 
 export const AUCTION_STATUS = {
   OPEN: 'OPEN',
@@ -43,10 +45,26 @@ class AuctionsService {
   }
 
   async findById(id) {
+    const auction = await this.auctionsRepository.findById(id);
+
+    if(!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+
     return this.auctionsRepository.findById(id);
   }
 
   async patch(id, { amount }) {
+    const auction = await this.findById(id);
+
+    if(auction.status !== AUCTION_STATUS.OPEN) {
+      throw new InvalidOperationError('Auction is not open');
+    }
+
+    if(amount <= auction.highestBid.amount) {
+      throw new InvalidOperationError(`Your bid must be higher than ${auction.highestBid.amount}`);
+    }
+
     return this.auctionsRepository.patch(id, { amount });
   }
 
