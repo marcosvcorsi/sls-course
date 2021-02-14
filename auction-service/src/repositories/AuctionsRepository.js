@@ -52,6 +52,22 @@ class AuctionsRepository {
     return Attributes;
   }
 
+  async findByStatus(status) {
+    const { Items } = await this.dynamoDb.query({
+      TableName,
+      IndexName: 'statusAndEndDate',
+      KeyConditionExpression: '#status = :status',
+      ExpressionAttributeValues: {
+        ':status': status,
+      },
+      ExpressionAttributeNames: {
+        '#status': 'status',
+      }
+    }).promise()
+
+    return Items;
+  }
+
   async findByStatusAndEndDate(status, endDate) {
     const { Items } = await this.dynamoDb.query({
       TableName,

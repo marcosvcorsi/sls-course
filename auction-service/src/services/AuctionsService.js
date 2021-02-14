@@ -4,7 +4,7 @@ import NotFoundError from '../errors/NotFoundError';
 
 export const AUCTION_STATUS = {
   OPEN: 'OPEN',
-  CLOSE: 'CLOSE'
+  CLOSED: 'CLOSED'
 };
 
 class AuctionsService {
@@ -68,6 +68,10 @@ class AuctionsService {
     return this.auctionsRepository.patch(id, { amount });
   }
 
+  async findByStatus(status) {
+    return this.auctionsRepository.findByStatus(status);
+  }
+
   async findAuctionsToClose() {
     const now = new Date();
 
@@ -77,7 +81,7 @@ class AuctionsService {
   }
 
   async updateAuctionToClose(auction) {
-    return this.auctionsRepository.updateAuctionStatus(auction, AUCTION_STATUS.CLOSE);
+    return this.auctionsRepository.updateAuctionStatus(auction, AUCTION_STATUS.CLOSED);
   }
 }
 
