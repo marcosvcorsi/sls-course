@@ -1,11 +1,29 @@
 import { createAuctionService } from "../factories/auctions";
 import createError from 'http-errors';
+import validator from '@middy/validator';
 import { ok } from "../helpers/http";
 import { useMiddlewares } from "../helpers/middlewares";
 import NotFoundError from "../errors/NotFoundError";
 import InvalidOperationError from "../errors/InvalidOperationError";
 
 const auctionsService = createAuctionService();
+
+const inputSchema = {
+  properties: {
+    body: {
+      type: 'object',
+      properties: {
+        amount: {
+          type: 'number',
+        }
+      },
+      required: ['amount']
+    }
+  },
+  required: [
+    'body'
+  ]
+}
 
 async function placeBid(event, context) {
   const { id } = event.pathParameters;
@@ -27,5 +45,7 @@ async function placeBid(event, context) {
   }
 }
 
-export const handler = useMiddlewares(placeBid)
+export const handler = useMiddlewares(placeBid).use(validator({
+  inputSchema
+}))
 
