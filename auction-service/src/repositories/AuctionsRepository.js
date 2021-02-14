@@ -68,6 +68,20 @@ class AuctionsRepository {
 
     return Items;
   }
+
+  async updateAuctionStatus(auction, status) {
+    return this.dynamoDb.update({
+      TableName,
+      Key: { id: auction.id },
+      UpdateExpression: 'set #status = :status',
+      ExpressionAttributeValues: {
+        ':status': status
+      },
+      ExpressionAttributeNames: {
+        '#status': 'status'
+      }
+    }).promise();
+  } 
 }
 
 export default AuctionsRepository;

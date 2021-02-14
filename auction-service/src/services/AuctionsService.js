@@ -1,7 +1,8 @@
 import { v4 as uuid } from 'uuid';
 
 export const AUCTION_STATUS = {
-  OPEN: 'OPEN'
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE'
 };
 
 class AuctionsService {
@@ -55,6 +56,10 @@ class AuctionsService {
     console.log(now.toISOString());
 
     return this.auctionsRepository.findByStatusAndEndDate(AUCTION_STATUS.OPEN, now);
+  }
+
+  async updateAuctionToClose(auction) {
+    return this.auctionsRepository.updateAuctionStatus(auction, AUCTION_STATUS.CLOSE);
   }
 }
 
