@@ -8,8 +8,9 @@ export const AUCTION_STATUS = {
 };
 
 class AuctionsService {
-  constructor({ auctionsRepository }) {
+  constructor({ auctionsRepository, messageService }) {
     this.auctionsRepository = auctionsRepository;
+    this.messageService = messageService;
   }
 
   async create({ title, seller }) {
@@ -90,7 +91,46 @@ class AuctionsService {
   }
 
   async updateAuctionToClose(auction) {
-    return this.auctionsRepository.updateAuctionStatus(auction, AUCTION_STATUS.CLOSED);
+    await this.auctionsRepository.updateAuctionStatus(auction, AUCTION_STATUS.CLOSED);
+
+    return this.notifyAuctionClosed(auction);
+  }
+
+  async notifyAuctionClosed(auction) {
+    const { title, seller, highestBid } = auction;
+    const { amount, bidder } = highestBid;
+
+    const queue = process.env.MAIL_QUEUE_URL;
+
+    console.log('queue', queue);
+
+    const sellerContent = {
+      subject: 'Your item has been sold!',
+      to: seller,
+      message: `Wooho! Your item ${title} has been sold for $${amount}`
+    }
+
+    console.log('seller message', sellerContent);
+
+    const notifySeller = this.messageService.sendMessage({
+      queue,
+      message: JSON.stringify(sellerContent)
+    })
+
+    const bidderContent = {
+      subject: 'You won an auction!',
+      to: bidder,
+      message: `What a great deal! You got yoursel a ${title} for $${amount}`
+    }
+
+    console.log('bidder message', bidderContent);
+
+    const notifyBidder = this.messageService.sendMessage({
+      queue,
+      message: JSON.stringify(bidderContent)
+    })
+
+    return Promise.all([notifySeller, notifyBidder]);
   }
 }
 
