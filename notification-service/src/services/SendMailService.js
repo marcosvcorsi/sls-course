@@ -3,39 +3,34 @@ import AWS from 'aws-sdk';
 class SendMailService {
   constructor() {
     this.sender = new AWS.SES({
-      region: 'us-east-1'
+      region: process.env.MAIL_REGION || 'us-east-1'
     })
-
-    this.from = 'noreply@marcoscorsi.com'
   }
 
-  async sendMail(email) {
+  async sendMail({
+    from,
+    to,
+    message,
+    subject
+  }) {
     const params = {
-      Source: this.from,
+      Source: from,
       Destination: {
-        ToAddresses: [email],
+        ToAddresses: [to],
       },
       Message: {
         Body: {
           Text: {
-            Data: 'Hello from SLS'
+            Data: message
           }
         },
         Subject: {
-          Data: 'Test Mail'
+          Data: subject
         }
       },
     };
 
-    try {
-      const result = await this.sender.sendEmail(params).promise();
-
-      console.log(result);
-
-      return result;
-    } catch(error) {
-      console.error(error);
-    }
+    return this.sender.sendEmail(params).promise();
   }
 }
 
