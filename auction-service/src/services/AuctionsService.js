@@ -104,33 +104,48 @@ class AuctionsService {
 
     console.log('queue', queue);
 
-    const sellerContent = {
-      subject: 'Your item has been sold!',
-      to: seller,
-      message: `Wooho! Your item ${title} has been sold for $${amount}`
+    if(!amount) {
+      const sellerContent = {
+        subject: 'No bids on your auction item :(',
+        to: seller,
+        message: `Oh no! Your item ${title} didn't get any bids. Better luck next item`
+      }
+  
+      console.log('seller message', sellerContent);
+  
+      return this.messageService.sendMessage({
+        queue,
+        message: JSON.stringify(sellerContent)
+      })
+    } else {
+      const sellerContent = {
+        subject: 'Your item has been sold!',
+        to: seller,
+        message: `Wooho! Your item ${title} has been sold for $${amount}`
+      }
+  
+      console.log('seller message', sellerContent);
+  
+      const notifySeller = this.messageService.sendMessage({
+        queue,
+        message: JSON.stringify(sellerContent)
+      })
+  
+      const bidderContent = {
+        subject: 'You won an auction!',
+        to: bidder,
+        message: `What a great deal! You got yoursel a ${title} for $${amount}`
+      }
+  
+      console.log('bidder message', bidderContent);
+  
+      const notifyBidder = this.messageService.sendMessage({
+        queue,
+        message: JSON.stringify(bidderContent)
+      })
+  
+      return Promise.all([notifySeller, notifyBidder]);
     }
-
-    console.log('seller message', sellerContent);
-
-    const notifySeller = this.messageService.sendMessage({
-      queue,
-      message: JSON.stringify(sellerContent)
-    })
-
-    const bidderContent = {
-      subject: 'You won an auction!',
-      to: bidder,
-      message: `What a great deal! You got yoursel a ${title} for $${amount}`
-    }
-
-    console.log('bidder message', bidderContent);
-
-    const notifyBidder = this.messageService.sendMessage({
-      queue,
-      message: JSON.stringify(bidderContent)
-    })
-
-    return Promise.all([notifySeller, notifyBidder]);
   }
 }
 
