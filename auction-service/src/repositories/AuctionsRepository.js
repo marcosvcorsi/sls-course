@@ -54,6 +54,20 @@ class AuctionsRepository {
     return Attributes;
   }
 
+  async patchPicture(id, pictureUrl) {
+    const { Attributes } = await this.dynamoDb.update({
+      TableName,
+      Key: { id },
+      UpdateExpression: 'set pictureUrl = :pictureUrl',
+      ExpressionAttributeValues: {
+        ':pictureUrl': pictureUrl
+      },
+      ReturnValues: 'ALL_NEW',
+    }).promise();
+
+    return Attributes;
+  }
+
   async findByStatus(status) {
     const { Items } = await this.dynamoDb.query({
       TableName,

@@ -96,6 +96,10 @@ class AuctionsService {
     return this.notifyAuctionClosed(auction);
   }
 
+  async updateAuctionPicture(id, pictureUrl) {
+    return this.auctionsRepository.patchPicture(id, pictureUrl);
+  }
+
   async notifyAuctionClosed(auction) {
     const { title, seller, highestBid } = auction;
     const { amount, bidder } = highestBid;
